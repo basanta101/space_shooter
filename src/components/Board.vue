@@ -1,13 +1,12 @@
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from 'vue';
+import { ref, onMounted, onBeforeUnmount } from "vue";
 
-// Constants for game parameters
 const ASTEROID_GENERATE_RATE = 1000;
 const UPDATE_RATE = 200;
 const START_POINT = 150;
 const PLAYER_MOVEMENT_AMOUNT = 15;
-const CHECK_KEYS_INTERVAL = 50; // Interval to check pressed keys (in milliseconds)
-const KEY_INACTIVITY_TIMEOUT = 3000; // Inactivity timeout (in milliseconds)
+const CHECK_KEYS_INTERVAL = 50;
+const KEY_INACTIVITY_TIMEOUT = 3000;
 
 const position = ref(START_POINT);
 const bullets = ref([]);
@@ -18,14 +17,12 @@ const score = ref(0);
 const lives = ref(3);
 const audio = ref();
 const effectsAudio = ref();
+const explodingAsteroids = ref([]);
 
 let gameLoopId;
 let asteroidGenerationId;
 let keyCheckIntervalId;
 let keyInactivityTimeoutId;
-let explodingAsteroids = ref([]);
-
-// Array to store pressed keys
 let pressedKeys = [];
 
 const movePlayerLeft = (amount) => {
@@ -44,19 +41,23 @@ const randomBetween = (min, max) => {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 };
 
+// TODO: make of use of this values
+const asteroidShapes = [
+  "M20 50 L35 20 Q50 5 65 20 L80 50 Q65 80 50 65 Q35 80 20 65 Z", // Dragon shape
+  "M10 20 Q 25 0 40 20 T 70 20 Z", // Shape 1 (a simplified quadratic curve path)
+  "M10 40 C 20 10, 40 10, 50 40 S 70 10, 90 40 Z", // Shape 2 (a simplified cubic curve path)
+  "M10 10 L 30 30 L 50 10 L 70 30 L 90 10 Z", // Shape 3 (a simplified zig-zag path)
+];
+
 const startGame = () => {
   isGameStarted.value = true;
   isGameOver.value = false;
   audio.value.play();
 
-  if (asteroidGenerationId) {
-    clearInterval(asteroidGenerationId);
-  }
+  clearInterval(asteroidGenerationId);
   asteroidGenerationId = setInterval(generateAsteroid, ASTEROID_GENERATE_RATE);
 
-  if (gameLoopId) {
-    clearInterval(gameLoopId);
-  }
+  clearInterval(gameLoopId);
   gameLoopId = setInterval(updateGame, UPDATE_RATE);
 
   startCheckingKeys();
@@ -72,12 +73,8 @@ const restartGame = () => {
   lives.value = 3;
   audio.value.play();
 
-  if (gameLoopId) {
-    clearInterval(gameLoopId);
-  }
-  if (asteroidGenerationId) {
-    clearInterval(asteroidGenerationId);
-  }
+  clearInterval(gameLoopId);
+  clearInterval(asteroidGenerationId);
   asteroidGenerationId = setInterval(generateAsteroid, ASTEROID_GENERATE_RATE);
   gameLoopId = setInterval(updateGame, UPDATE_RATE);
 
@@ -117,7 +114,7 @@ const fireBullet = () => {
 const generateAsteroid = () => {
   if (isGameStarted.value && !isGameOver.value) {
     const left = randomBetween(0, 380);
-    const size = randomBetween(15, 40);
+    const size = randomBetween(30, 80); // Increased size
     asteroids.value.push({ top: 0, left, size });
   }
 };
@@ -182,7 +179,9 @@ const checkCollisions = () => {
         explodingAsteroids.value.push(asteroid);
         setTimeout(() => {
           asteroids.value.splice(asteroidIndex, 1);
-          explodingAsteroids.value = explodingAsteroids.value.filter(a => a !== asteroid);
+          explodingAsteroids.value = explodingAsteroids.value.filter(
+            (a) => a !== asteroid
+          );
         }, 500); // Match the duration of the explosion animation
       }
     });
@@ -190,16 +189,10 @@ const checkCollisions = () => {
 };
 
 const startCheckingKeys = () => {
-  if (keyCheckIntervalId) {
-    clearInterval(keyCheckIntervalId);
-  }
-
+  clearInterval(keyCheckIntervalId);
   keyCheckIntervalId = setInterval(checkPressedKeys, CHECK_KEYS_INTERVAL);
 
-  if (keyInactivityTimeoutId) {
-    clearTimeout(keyInactivityTimeoutId);
-  }
-
+  clearTimeout(keyInactivityTimeoutId);
   keyInactivityTimeoutId = setTimeout(() => {
     clearInterval(keyCheckIntervalId);
     keyCheckIntervalId = null;
@@ -210,16 +203,16 @@ const checkPressedKeys = () => {
   if (!isGameStarted.value || isGameOver.value) {
     return;
   }
-  
+
   pressedKeys.forEach((key) => {
     switch (key) {
-      case 'ArrowLeft':
+      case "ArrowLeft":
         movePlayerLeft(PLAYER_MOVEMENT_AMOUNT);
         break;
-      case 'ArrowRight':
+      case "ArrowRight":
         movePlayerRight(PLAYER_MOVEMENT_AMOUNT);
         break;
-      case ' ':
+      case " ":
         fireBullet();
         break;
       default:
@@ -227,11 +220,7 @@ const checkPressedKeys = () => {
     }
   });
 
-  // Restart inactivity timeout whenever a key is processed
-  if (keyInactivityTimeoutId) {
-    clearTimeout(keyInactivityTimeoutId);
-  }
-
+  clearTimeout(keyInactivityTimeoutId);
   keyInactivityTimeoutId = setTimeout(() => {
     clearInterval(keyCheckIntervalId);
     keyCheckIntervalId = null;
@@ -239,22 +228,21 @@ const checkPressedKeys = () => {
 };
 
 onMounted(() => {
-  window.addEventListener('keydown', handleKeyDown);
-  window.addEventListener('keyup', handleKeyUp);
+  window.addEventListener("keydown", handleKeyDown);
+  window.addEventListener("keyup", handleKeyUp);
 });
 
 onBeforeUnmount(() => {
-  window.removeEventListener('keydown', handleKeyDown);
-  window.removeEventListener('keyup', handleKeyUp);
+  window.removeEventListener("keydown", handleKeyDown);
+  window.removeEventListener("keyup", handleKeyUp);
   clearInterval(gameLoopId);
   clearInterval(asteroidGenerationId);
   clearInterval(keyCheckIntervalId);
   clearTimeout(keyInactivityTimeoutId);
 });
 </script>
-
 <template>
-  <div>
+  <div class="wrapper">
     <div class="main-play-area">
       <div
         v-if="isGameStarted && !isGameOver"
@@ -303,12 +291,7 @@ onBeforeUnmount(() => {
     <audio hidden ref="effectsAudio">
       <source src="../assets/music/explosion.wav" type="audio/mpeg" />
     </audio>
-    <div class="controls" v-if="isGameStarted && !isGameOver">
-      <button @click="moveLeft" :disabled="isGameOver">Left</button>
-      <button @click="moveRight" :disabled="isGameOver">Right</button>
-      <button @click="fireBullet" :disabled="isGameOver">Fire</button>
-    </div>
-    <div class="score-lives" v-if="isGameStarted">
+    <div class="score-lives">
       <p>Score: {{ score }}</p>
       <p>Lives: {{ lives }}</p>
     </div>
@@ -331,7 +314,13 @@ onBeforeUnmount(() => {
   animation: explode 0.5s forwards;
 }
 
-/* Existing styles... */
+.wrapper {
+  border: 1px solid red;
+  display: flex;
+  justify-content: center;
+  height: 100vh;
+  align-items: center;
+}
 
 .main-play-area {
   background-color: black;
@@ -339,17 +328,21 @@ onBeforeUnmount(() => {
   height: 400px;
   position: relative;
   overflow: hidden;
+  background-image: url("../assets/images/Background.png");
+  background-size: cover;
 
   .player-control-shooter {
-    width: 0;
-    height: 0;
-    border-left: 10px solid transparent;
-    border-right: 10px solid transparent;
-    border-bottom: 20px solid white;
+    width: 40px;
+    height: 40px;
+    // border-left: 10px solid transparent;
+    // border-right: 10px solid transparent;
+    // border-bottom: 20px solid white;
     position: absolute;
-    bottom: 0;
+    bottom: 4px;
     transform: translateX(-50%);
     transition: transform 0.3s ease; /* Transition only transform property */
+    background-image: url("../assets/images/Assaulter.png");
+    background-size: cover;
   }
 
   .bullet {
@@ -357,11 +350,13 @@ onBeforeUnmount(() => {
     height: 10px;
     background-color: red;
     position: absolute;
+    background-image: url("../assets/images/BasicProjectile.png");
+    background-size: contain;
   }
 
   .asteroid {
-    background-color: gray;
     position: absolute;
+    background-color: gray;
   }
 
   .game-over-message {
@@ -388,19 +383,20 @@ onBeforeUnmount(() => {
     cursor: pointer;
   }
 
+
+}
+
   .score-lives {
-    position: absolute;
+    // position: absolute;
     top: 10px;
     right: 10px;
-    color: white;
+    // color: white;
     font-size: 16px;
-
+    padding: 16px;
     p {
       margin: 5px 0;
     }
   }
-}
-
 .controls {
   margin-top: 10px;
   display: flex;
