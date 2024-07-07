@@ -11,3 +11,4 @@ import Board from './components/Board.vue'
 
 
 // TODO: apply absolute paths
+// TODO: sound on impact, gameover 
