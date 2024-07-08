@@ -1,6 +1,12 @@
 # Space Shooter
 A simple shooting game made with vue3 and vite
 
+## Checkout the Game
+https://space-shooter-sand.vercel.app
+
+
+## Game Instructions
+Press SpaceBar to shoot, use left, right arrow to move
 
 ## Run Locally
 
