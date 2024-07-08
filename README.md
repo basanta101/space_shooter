@@ -1,10 +1,38 @@
-# Vue 3 + Vite
-
-This template should help get you started developing with Vue 3 in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
-
-Learn more about IDE Support for Vue in the [Vue Docs Scaling up Guide](https://vuejs.org/guide/scaling-up/tooling.html#ide-support).
+# Space Shooter
+A simple shooting game made with vue3 and vite
 
 
+## Run Locally
 
-## Managing Simultaneous “keyPressed” Events in Javascript
+Clone the project
+
+```bash
+  git clone https://github.com/basanta101/space_shooter.git
+```
+
+Go to the project directory
+
+```bash
+  cd to folder directory
+```
+
+Install dependencies
+
+```bash
+  npm install
+```
+
+Start the dev server
+
+```bash
+  npm run dev
+```
+
+## Tech Stack
+
+**Client:** Vue.js, Vite
+
+
+## References
+
 https://medium.com/@joshbwasserman/managing-simultaneous-keypressed-events-in-javascript-78da1b3b14de
