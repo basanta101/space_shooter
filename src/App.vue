@@ -1,5 +1,5 @@
 <script setup>
-import Board from './components/Board.vue'
+import Board from './components/Board/Board.vue'
 </script>
 
 <template>
@@ -8,7 +8,3 @@ import Board from './components/Board.vue'
 
 <style scoped>
 </style>
-
-
-// TODO: apply absolute paths
-// TODO: sound on impact, gameover 
